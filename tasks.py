@@ -35,6 +35,7 @@ def clean(c):
 
 
 @task
-def check(c):
+def test(c):
     """Check the code for errors"""
     c.run("pre-commit run -a")
+    c.run('PYTHONPATH="$(realpath src):${PYTHONPATH}" pytest tests')
