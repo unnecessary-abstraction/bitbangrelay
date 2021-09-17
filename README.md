@@ -3,6 +3,8 @@ Copyright (c) 2021 SanCloud Ltd
 SPDX-License-Identifier: CC-BY-4.0
 -->
 
+[![build-and-test](https://github.com/SanCloudLtd/bitbangrelay/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/SanCloudLtd/bitbangrelay/actions/workflows/build-and-test.yml)
+
 # bitbangrelay
 
 A simple tool for controlling USB relay boards
