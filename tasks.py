@@ -7,7 +7,19 @@ from invoke import task
 @task
 def install(c):
     """Install the project locally"""
-    c.run("pip install .")
+    c.run("python3 -m pip install .")
+
+
+@task
+def install_deps(c):
+    """Install dependencies only (for local development)"""
+    import configparser
+    import shlex
+
+    config = configparser.ConfigParser()
+    config.read("setup.cfg")
+    deps = shlex.join(config["options"]["install_requires"].strip().split("\n"))
+    c.run(f"python3 -m pip install {deps}")
 
 
 @task
