@@ -3,7 +3,6 @@
 
 import argparse
 import os
-import pylibftdi
 import time
 import yaml
 
@@ -71,12 +70,22 @@ class Channel:
 
 
 class Relay:
-    def __init__(self, config_file=None, device_name="default"):
-        if not config_file:
-            config_file = os.path.expanduser("~/.config/bitbangrelay.yml")
-        self.config = parse_config(config_file)[device_name]
+    def __init__(
+        self, config=None, config_file=None, device_name="default", device_class=None
+    ):
+        if not device_class:
+            import pylibftdi
 
-        self.device = pylibftdi.BitBangDevice(self.config.get("id"))
+            device_class = pylibftdi.BitBangDevice
+        if config:
+            self.config = config
+        else:
+            if not config_file:
+                config_file = os.path.expanduser("~/.config/bitbangrelay.yml")
+            self.config = parse_config(config_file)[device_name]
+
+        self.device_name = device_name
+        self.device = device_class(self.config.get("id"))
         self.device.direction = 0xFF
         self.channels = self.config.get("channels", 8)
 
@@ -121,7 +130,7 @@ class Relay:
 
 def main():
     args = parse_args()
-    relay = Relay(args.config_file, args.device)
+    relay = Relay(config_file=args.config_file, device_name=args.device)
     if args.channel == "all":
         if args.action in ["on", "1"]:
             relay.all_on()
