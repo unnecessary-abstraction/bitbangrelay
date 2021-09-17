@@ -15,3 +15,65 @@ Code distributed under the
 [Apache 2.0 License](https://choosealicense.com/licenses/apache-2.0/),
 documentation distributed under the
 [CC BY 4.0 License](https://creativecommons.org/licenses/by/4.0/).
+
+## Configuration
+
+The bitbangrelay library parses a configuration file in yaml syntax
+to determine the available relay devices and channels.
+
+Example configuration:
+
+```yaml
+# Top level keys give names for the available relay devices. A relay device
+# named "default" will be the default if no other device name is given.
+default:
+
+    # The id is required for each relay device. This is passed to pylibftdi
+    # to select the appropriate USB device and is typically the device's
+    # serial number.
+    id: AAAAAAAA
+
+    # The number of channels supported by the relay device. If this is not
+    # provided then it is assumed that 8 channels are available.
+    channels: 4
+
+    # Channels can be selected by index or by alias. A dictionary mapping
+    # alises to channel numbers may be provided for convenience.
+    aliases:
+        bbe: 0
+        bbe-lite: 1
+        beaglebone-black: 2
+        raspberrypi4: 3
+```
+
+## Command Line Interface
+
+```
+usage: bitbangrelay [-h] [--version] [-c CONFIG_FILE] [-d DEVICE] channel action
+
+USB BitBang Relay Controller
+
+positional arguments:
+  channel               Relay channel to control
+  action                Action to perform: 'on', 'off' or 'cycle'
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --version             show program's version number and exit
+  -c CONFIG_FILE, --config-file CONFIG_FILE
+                        Config file to load, defaults to ~/.config/bitbangrelay.yml
+  -d DEVICE, --device DEVICE
+                        Relay device to control, defaults to 'default'
+```
+
+### Example usage
+
+* To turn on a channel: `bitbangrelay bbe on`
+
+* To turn off a channel: `bitbangrelay bbe off`
+
+* To power cycle a channel: `bitbangrelay bbe cycle`
+  * The connected device will be powered off and then
+    5 seconds later it will be powered back on.
+
+* To turn off all channels of a relay: `bitbangrelay all off`
