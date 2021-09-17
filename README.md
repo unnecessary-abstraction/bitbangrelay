@@ -77,3 +77,16 @@ optional arguments:
     5 seconds later it will be powered back on.
 
 * To turn off all channels of a relay: `bitbangrelay all off`
+
+## Dependencies
+
+bitbangrelay relies on the following Python modules:
+
+* [PyYAML](https://pypi.org/project/PyYAML/)
+  for config file parsing.
+
+* [pylibftdi](https://pypi.org/project/pylibftdi/)
+  for interacting with FTDI devices.
+
+  * Note that the C library libftdi must be installed separately
+    for pylibftdi to import correctly.
