@@ -4,39 +4,10 @@
 import argparse
 import os
 import time
-import yaml
 
 
 __progname__ = "bitbangrelay"
 __version__ = "0.1.0"
-
-
-def parse_args():
-    parser = argparse.ArgumentParser(
-        prog=__progname__, description="USB BitBang Relay Controller"
-    )
-    parser.add_argument(
-        "--version", action="version", version=f"{__progname__} {__version__}"
-    )
-    parser.add_argument(
-        "-c",
-        "--config-file",
-        help="Config file to load, defaults to ~/.config/bitbangrelay.yml",
-    )
-    parser.add_argument(
-        "-d",
-        "--device",
-        default="default",
-        help="Relay device to control, defaults to 'default'",
-    )
-    parser.add_argument("channel", help="Relay channel to control")
-    parser.add_argument("action", help="Action to perform: 'on', 'off' or 'cycle'")
-    return parser.parse_args()
-
-
-def parse_config(config_file):
-    f = open(config_file, "r")
-    return yaml.safe_load(f)
 
 
 class Channel:
@@ -77,12 +48,16 @@ class Relay:
             import pylibftdi
 
             device_class = pylibftdi.BitBangDevice
+
         if config:
             self.config = config
         else:
+            import yaml
+
             if not config_file:
                 config_file = os.path.expanduser("~/.config/bitbangrelay.yml")
-            self.config = parse_config(config_file)[device_name]
+            with open(config_file, "r") as f:
+                self.config = yaml.safe_load(f)[device_name]
 
         self.device_name = device_name
         self.device = device_class(self.config.get("id"))
@@ -129,7 +104,27 @@ class Relay:
 
 
 def main():
-    args = parse_args()
+    parser = argparse.ArgumentParser(
+        prog=__progname__, description="USB BitBang Relay Controller"
+    )
+    parser.add_argument(
+        "--version", action="version", version=f"{__progname__} {__version__}"
+    )
+    parser.add_argument(
+        "-c",
+        "--config-file",
+        help="Config file to load, defaults to ~/.config/bitbangrelay.yml",
+    )
+    parser.add_argument(
+        "-d",
+        "--device",
+        default="default",
+        help="Relay device to control, defaults to 'default'",
+    )
+    parser.add_argument("channel", help="Relay channel to control")
+    parser.add_argument("action", help="Action to perform: 'on', 'off' or 'cycle'")
+    args = parser.parse_args()
+
     relay = Relay(config_file=args.config_file, device_name=args.device)
     if args.channel == "all":
         if args.action in ["on", "1"]:
