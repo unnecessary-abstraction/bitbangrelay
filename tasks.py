@@ -20,3 +20,9 @@ def build(c):
 def clean(c):
     """Remove build output"""
     c.run("rm -rf build dist src/*.egg-info")
+
+
+@task
+def check(c):
+    """Check the code for errors"""
+    c.run("pre-commit run -a")
