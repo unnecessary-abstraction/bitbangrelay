@@ -34,7 +34,7 @@ def test_on_off():
     assert relay.device.port == 0b00001001
     ch_c.set(True)
     assert relay.device.port == 0b00101001
-    ch_a.cycle(1)
+    ch_a.cycle(0.1)
     assert relay.device.port == 0b00101001
     ch_b.off()
     assert relay.device.port == 0b00100001
@@ -48,5 +48,5 @@ def test_on_off():
     assert relay.device.port == 0
     relay.all_on()
     assert relay.device.port == 0xFF
-    relay.all_cycle(1)
+    relay.all_cycle(0.1)
     assert relay.device.port == 0xFF
