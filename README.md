@@ -18,6 +18,15 @@ Code distributed under the
 documentation distributed under the
 [CC BY 4.0 License](https://creativecommons.org/licenses/by/4.0/).
 
+---
+
+**NOTE:** This project is a work in progress,
+documentation and testing are currently very limited.
+If this project is useful to you,
+please let us know how it can be improved.
+
+---
+
 ## Configuration
 
 The bitbangrelay library parses a configuration file in yaml syntax
