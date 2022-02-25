@@ -1,22 +1,16 @@
 <!--
-Copyright (c) 2021 SanCloud Ltd
+Copyright (c) 2021-2022 SanCloud Ltd
 SPDX-License-Identifier: CC-BY-4.0
 -->
 
-[![build-and-test](https://github.com/SanCloudLtd/bitbangrelay/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/SanCloudLtd/bitbangrelay/actions/workflows/build-and-test.yml)
-
 # bitbangrelay
+
+[![CI](https://github.com/SanCloudLtd/bitbangrelay/actions/workflows/ci.yml/badge.svg)](https://github.com/SanCloudLtd/bitbangrelay/actions/workflows/ci.yml)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/SanCloudLtd/bitbangrelay/dev.svg)](https://results.pre-commit.ci/latest/github/SanCloudLtd/bitbangrelay/dev)
 
 A simple tool for controlling USB relay boards
 based around an FTDI FT232R/FT245R chip in bitbang mode,
 for example SainSmart 4 or 8 channel USB relay modules.
-
-Copyright (c) 2021 SanCloud Ltd.
-
-Code distributed under the
-[Apache 2.0 License](https://choosealicense.com/licenses/apache-2.0/),
-documentation distributed under the
-[CC BY 4.0 License](https://creativecommons.org/licenses/by/4.0/).
 
 ---
 
@@ -27,37 +21,29 @@ please let us know how it can be improved.
 
 ---
 
-## Configuration
+## Install
 
-The bitbangrelay library parses a configuration file in yaml syntax
-to determine the available relay devices and channels.
+There has not yet been a packaged release of bitbangrelay,
+so the best way to install is via git:
 
-Example configuration:
-
-```yaml
-# Top level keys give names for the available relay devices. A relay device
-# named "default" will be the default if no other device name is given.
-default:
-
-    # The id is required for each relay device. This is passed to pylibftdi
-    # to select the appropriate USB device and is typically the device's
-    # serial number.
-    id: AAAAAAAA
-
-    # The number of channels supported by the relay device. If this is not
-    # provided then it is assumed that 8 channels are available.
-    channels: 4
-
-    # Channels can be selected by index or by alias. A dictionary mapping
-    # alises to channel numbers may be provided for convenience.
-    aliases:
-        bbe: 0
-        bbe-lite: 1
-        beaglebone-black: 2
-        raspberrypi4: 3
+```
+pip install git+https://github.com/SanCloudLtd/bitbangrelay.git
 ```
 
-## Command Line Interface
+### Dependencies
+
+bitbangrelay relies on the following Python modules:
+
+* [PyYAML](https://pypi.org/project/PyYAML/)
+  for config file parsing.
+
+* [pylibftdi](https://pypi.org/project/pylibftdi/)
+  for interacting with FTDI devices.
+
+  * Note that the C library libftdi must be installed separately
+    for pylibftdi to import correctly.
+
+## Usage
 
 ```
 usage: bitbangrelay [-h] [--version] [-c CONFIG_FILE] [-d DEVICE] channel action
@@ -89,15 +75,50 @@ optional arguments:
 
 * To turn off all channels of a relay: `bitbangrelay all off`
 
-## Dependencies
+### Configuration
 
-bitbangrelay relies on the following Python modules:
+The bitbangrelay library parses a configuration file in yaml syntax
+to determine the available relay devices and channels.
 
-* [PyYAML](https://pypi.org/project/PyYAML/)
-  for config file parsing.
+Example configuration:
 
-* [pylibftdi](https://pypi.org/project/pylibftdi/)
-  for interacting with FTDI devices.
+```yaml
+# Top level keys give names for the available relay devices. A relay device
+# named "default" will be the default if no other device name is given.
+default:
 
-  * Note that the C library libftdi must be installed separately
-    for pylibftdi to import correctly.
+    # The id is required for each relay device. This is passed to pylibftdi
+    # to select the appropriate USB device and is typically the device's
+    # serial number.
+    id: AAAAAAAA
+
+    # The number of channels supported by the relay device. If this is not
+    # provided then it is assumed that 8 channels are available.
+    channels: 4
+
+    # Channels can be selected by index or by alias. A dictionary mapping
+    # alises to channel numbers may be provided for convenience.
+    aliases:
+        bbe: 0
+        bbe-lite: 1
+        beaglebone-black: 2
+        raspberrypi4: 3
+```
+
+## Maintainers
+
+* Paul Barker
+  [:envelope:](mailto:paul.barker@sancloud.com)
+
+## License
+
+Copyright (c) 2021-2022 SanCloud Ltd.
+
+* Code files are distributed under the
+  [Apache 2.0 License](https://tldrlegal.com/license/apache-license-2.0-(apache-2.0)).
+
+* Documentation files are distributed under the
+  [CC BY 4.0 License](https://tldrlegal.com/license/creative-commons-attribution-4.0-international-(cc-by-4)).
+
+* Trivial data files are distributed under the
+  [CC0 1.0 License](https://tldrlegal.com/license/creative-commons-cc0-1.0-universal).
