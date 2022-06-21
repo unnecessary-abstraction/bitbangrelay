@@ -7,6 +7,7 @@ import time
 
 
 __progname__ = "bitbangrelay"
+__description__ = "Control USB relay boards based on FTDI FT232R/FT245R chips in bitbang mode"
 __version__ = "0.1.0"
 
 
@@ -105,7 +106,7 @@ class Relay:
 
 def main():
     parser = argparse.ArgumentParser(
-        prog=__progname__, description="USB BitBang Relay Controller"
+        prog=__progname__, description=__description__
     )
     parser.add_argument(
         "--version", action="version", version=f"{__progname__} {__version__}"
