@@ -21,6 +21,10 @@ def do_build(args):
     run("python3 -m build .")
 
 
+def do_test(args):
+    run('PYTHONPATH="$(realpath src):${PYTHONPATH}" pytest tests')
+
+
 def do_clean(args):
     if os.path.exists("dist"):
         shutil.rmtree("dist")
@@ -93,6 +97,9 @@ def parse_args():
 
     build_cmd = subparsers.add_parser(name="build", help="Build a wheel")
     build_cmd.set_defaults(cmd_fn=do_build)
+
+    test_cmd = subparsers.add_parser(name="test", help="Run test suite")
+    test_cmd.set_defaults(cmd_fn=do_test)
 
     clean_cmd = subparsers.add_parser(
         name="clean", help="Remove build output from the source tree"
