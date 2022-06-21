@@ -3,6 +3,7 @@
 
 import os
 import time
+import sys
 
 
 class Channel:
@@ -40,14 +41,22 @@ class Relay:
         self, config=None, config_file=None, device_name="default", device_class=None
     ):
         if not device_class:
-            import pylibftdi
+            try:
+                import pylibftdi
+            except ImportError:
+                print("Error: Missing pylibftdi module, see https://github.com/SanCloudLtd/bitbangrelay#install for instructions.")
+                sys.exit(1)
 
             device_class = pylibftdi.BitBangDevice
 
         if config:
             self.config = config
         else:
-            import yaml
+            try:
+                import yaml
+            except ImportError:
+                print("Error: Missing yaml module, see https://github.com/SanCloudLtd/bitbangrelay#install for instructions.")
+                sys.exit(1)
 
             if not config_file:
                 config_file = os.path.expanduser("~/.config/bitbangrelay.yml")
