@@ -8,6 +8,6 @@ import sys
 src_path = join(dirname(__file__), "src")
 sys.path.insert(0, src_path)
 
-import bitbangrelay  # noqa: E402
+from bitbangrelay.__main__ import main  # noqa: E402
 
-bitbangrelay.main()
+main()

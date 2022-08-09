@@ -1,7 +1,7 @@
 # Copyright (c) 2021 SanCloud Ltd
 # SPDX-License-Identifier: Apache-2.0
 
-from bitbangrelay import Relay, Channel
+from bitbangrelay.relay import Relay, Channel
 
 
 class DummyDeviceClass:
