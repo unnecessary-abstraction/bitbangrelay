@@ -34,45 +34,65 @@ def do_clean(args):
 
 def do_release(args):
     do_clean(args)
-    with open("src/bitbangrelay/__init__.py", "r+") as f:
-        text = re.sub(r"(__version__ =).*\n", rf'\1 "{args.version}"\n', f.read())
-        f.seek(0)
-        f.write(text)
-        f.truncate()
-    run(f'git commit -asm "Release {args.version}"')
+
+    args.release = True
+    do_set_version(args)
     release_commit = capture("git rev-parse HEAD").strip()
-    run(f"git push origin {release_commit}:refs/heads/release")
-    run(f"git push gh {release_commit}:refs/heads/release")
+
     do_build(args)
+
     with open("dist/RELEASE_NOTES.txt", "w") as f:
         f.write(f"bitbangrelay {args.version}\n")
         text = capture(f"markdown-extract -n ^{args.version} ChangeLog.md")
         f.write(text)
-    run(f"git tag -a -F dist/RELEASE_NOTES.txt v{args.version} HEAD")
-    run(f"git push origin v{args.version}")
-    run(f"git push gh v{args.version}")
+
+    file_list = f"RELEASE_NOTES.txt bitbangrelay-{args.version}.tar.gz bitbangrelay-{args.version}-py3-none-any.whl"
     with open("dist/SHA256SUMS", "w") as f:
-        text = capture(
-            "sha256sum RELEASE_NOTES.txt "
-            f"bitbangrelay-{args.version}.tar.gz bitbangrelay-{args.version}-py3-none-any.whl",
-            cwd="dist",
-        )
+        text = capture(f"sha256sum {file_list}", cwd="dist")
         f.write(text)
+    with open("dist/B3SUMS", "w") as f:
+        text = capture(f"b3sum {file_list}", cwd="dist")
+        f.write(text)
+    file_list += " SHA256SUMS B3SUMS"
     if args.sign:
         run("gpg --detach-sign -a dist/SHA256SUMS")
+        run("gpg --detach-sign -a dist/B3SUMS")
+        file_list += " SHA256SUMS.asc B3SUMS.asc"
+
+    run(f"git tag -a -F dist/RELEASE_NOTES.txt v{args.version} HEAD")
     if not args.no_gitlab:
-        run(f"glab release create v{args.version} -F dist/RELEASE_NOTES.txt dist/*")
+        run("git push origin")
+        run(f"git push origin {release_commit}:refs/heads/release")
+        run(f"git push origin v{args.version}")
+        run(f"glab release create v{args.version} -F RELEASE_NOTES.txt {file_list}", cwd="dist")
         run(
             "twine upload -r gitlab-bitbangrelay "
-            f"dist/bitbangrelay-{args.version}.tar.gz "
-            f"dist/bitbangrelay-{args.version}-py3-none-any.whl"
+            f"bitbangrelay-{args.version}.tar.gz "
+            f"bitbangrelay-{args.version}-py3-none-any.whl",
+            cwd="dist"
         )
-    run(f"gh release create v{args.version} -F dist/RELEASE_NOTES.txt dist/*")
-    run(
-        "twine upload "
-        f"dist/bitbangrelay-{args.version}.tar.gz "
-        f"dist/bitbangrelay-{args.version}-py3-none-any.whl"
-    )
+    if not args.no_github:
+        run("git push gh")
+        run(f"git push gh {release_commit}:refs/heads/release")
+        run(f"git push gh v{args.version}")
+        run(f"gh release create v{args.version} -F RELEASE_NOTES.txt {file_list}", cwd="dist")
+    if not args.no_pypi:
+        run(
+            "twine upload "
+            f"bitbangrelay-{args.version}.tar.gz "
+            f"bitbangrelay-{args.version}-py3-none-any.whl",
+            cwd="dist"
+        )
+
+
+def do_release_signatures(args):
+    file_list = "SHA256SUMS.asc B3SUMS.asc"
+    if not args.no_gitlab:
+        run(f"glab release upload v{args.version} {file_list}",
+            cwd="release")
+    if not args.no_github:
+        run(f"gh release upload v{args.version} {file_list}",
+            cwd="release")
 
 
 def do_set_version(args):
@@ -81,7 +101,8 @@ def do_set_version(args):
         f.seek(0)
         f.write(text)
         f.truncate()
-    run(f'git commit -asm "Bump version to {args.version}"')
+    msg = "Release" if args.release else "Bump version to"
+    run(f'git commit -asm "{msg} {args.version}"')
 
 
 def do_no_command(args):
@@ -119,12 +140,39 @@ def parse_args():
         action="store_true",
         help="Disable push to SanCloud gitlab instance",
     )
+    release_cmd.add_argument(
+        "--no-github",
+        action="store_true",
+        help="Disable push to GitHub",
+    )
+    release_cmd.add_argument(
+        "--no-pypi",
+        action="store_true",
+        help="Disable push to PyPI",
+    )
+
+    release_signatures_cmd = subparsers.add_parser(
+        name="release-signatures", help="Push release signatures to GitHub and/or GitLab"
+    )
+    release_signatures_cmd.set_defaults(cmd_fn=do_release_signatures)
+    release_signatures_cmd.add_argument("version", help="Release to push signatures for (must already be released)")
+    release_signatures_cmd.add_argument(
+        "--no-gitlab",
+        action="store_true",
+        help="Disable pushing signatures to SanCloud gitlab instance",
+    )
+    release_signatures_cmd.add_argument(
+        "--no-github",
+        action="store_true",
+        help="Disable pushing signatures to public github repositories",
+    )
 
     set_version_cmd = subparsers.add_parser(
         name="set-version", help="Set version string & commit"
     )
     set_version_cmd.set_defaults(cmd_fn=do_set_version)
     set_version_cmd.add_argument("version", help="New version string")
+    set_version_cmd.add_argument("-r", "--release", action="store_true", help="This version bump is for a release")
 
     return parser.parse_args()
 
