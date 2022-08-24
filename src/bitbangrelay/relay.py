@@ -44,7 +44,10 @@ class Relay:
             try:
                 import pylibftdi
             except ImportError:
-                print("Error: Missing pylibftdi module, see https://github.com/SanCloudLtd/bitbangrelay#install for instructions.")
+                print(
+                    "Error: Missing pylibftdi module, "
+                    "see https://github.com/SanCloudLtd/bitbangrelay#install for instructions."
+                )
                 sys.exit(1)
 
             device_class = pylibftdi.BitBangDevice
@@ -55,7 +58,10 @@ class Relay:
             try:
                 import yaml
             except ImportError:
-                print("Error: Missing yaml module, see https://github.com/SanCloudLtd/bitbangrelay#install for instructions.")
+                print(
+                    "Error: Missing yaml module, "
+                    "see https://github.com/SanCloudLtd/bitbangrelay#install for instructions."
+                )
                 sys.exit(1)
 
             if not config_file:

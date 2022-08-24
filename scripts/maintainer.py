@@ -46,7 +46,10 @@ def do_release(args):
         text = capture(f"markdown-extract -n ^{args.version} ChangeLog.md")
         f.write(text)
 
-    file_list = f"RELEASE_NOTES.txt bitbangrelay-{args.version}.tar.gz bitbangrelay-{args.version}-py3-none-any.whl"
+    file_list = (
+        "RELEASE_NOTES.txt "
+        f"bitbangrelay-{args.version}.tar.gz bitbangrelay-{args.version}-py3-none-any.whl"
+    )
     with open("dist/SHA256SUMS", "w") as f:
         text = capture(f"sha256sum {file_list}", cwd="dist")
         f.write(text)
@@ -64,35 +67,39 @@ def do_release(args):
         run("git push origin")
         run(f"git push origin {release_commit}:refs/heads/release")
         run(f"git push origin v{args.version}")
-        run(f"glab release create v{args.version} -F RELEASE_NOTES.txt {file_list}", cwd="dist")
+        run(
+            f"glab release create v{args.version} -F RELEASE_NOTES.txt {file_list}",
+            cwd="dist",
+        )
         run(
             "twine upload -r gitlab-bitbangrelay "
             f"bitbangrelay-{args.version}.tar.gz "
             f"bitbangrelay-{args.version}-py3-none-any.whl",
-            cwd="dist"
+            cwd="dist",
         )
     if not args.no_github:
         run("git push gh")
         run(f"git push gh {release_commit}:refs/heads/release")
         run(f"git push gh v{args.version}")
-        run(f"gh release create v{args.version} -F RELEASE_NOTES.txt {file_list}", cwd="dist")
+        run(
+            f"gh release create v{args.version} -F RELEASE_NOTES.txt {file_list}",
+            cwd="dist",
+        )
     if not args.no_pypi:
         run(
             "twine upload "
             f"bitbangrelay-{args.version}.tar.gz "
             f"bitbangrelay-{args.version}-py3-none-any.whl",
-            cwd="dist"
+            cwd="dist",
         )
 
 
 def do_release_signatures(args):
     file_list = "SHA256SUMS.asc B3SUMS.asc"
     if not args.no_gitlab:
-        run(f"glab release upload v{args.version} {file_list}",
-            cwd="release")
+        run(f"glab release upload v{args.version} {file_list}", cwd="release")
     if not args.no_github:
-        run(f"gh release upload v{args.version} {file_list}",
-            cwd="release")
+        run(f"gh release upload v{args.version} {file_list}", cwd="release")
 
 
 def do_set_version(args):
@@ -152,10 +159,13 @@ def parse_args():
     )
 
     release_signatures_cmd = subparsers.add_parser(
-        name="release-signatures", help="Push release signatures to GitHub and/or GitLab"
+        name="release-signatures",
+        help="Push release signatures to GitHub and/or GitLab",
     )
     release_signatures_cmd.set_defaults(cmd_fn=do_release_signatures)
-    release_signatures_cmd.add_argument("version", help="Release to push signatures for (must already be released)")
+    release_signatures_cmd.add_argument(
+        "version", help="Release to push signatures for (must already be released)"
+    )
     release_signatures_cmd.add_argument(
         "--no-gitlab",
         action="store_true",
@@ -172,7 +182,12 @@ def parse_args():
     )
     set_version_cmd.set_defaults(cmd_fn=do_set_version)
     set_version_cmd.add_argument("version", help="New version string")
-    set_version_cmd.add_argument("-r", "--release", action="store_true", help="This version bump is for a release")
+    set_version_cmd.add_argument(
+        "-r",
+        "--release",
+        action="store_true",
+        help="This version bump is for a release",
+    )
 
     return parser.parse_args()
 

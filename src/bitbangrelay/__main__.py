@@ -8,9 +8,7 @@ from .relay import Relay, Channel
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(
-        prog=__progname__, description=__description__
-    )
+    parser = argparse.ArgumentParser(prog=__progname__, description=__description__)
     parser.add_argument(
         "--version", action="version", version=f"{__progname__} {__version__}"
     )
